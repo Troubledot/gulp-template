@@ -1,0 +1,44 @@
+{
+  "name": "gulp-template",
+  "version": "1.0.0",
+  "description": "A basic web development template builded by gulp",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Troubledot/gulp-template.git"
+  },
+  "keywords": [
+    "gulp"
+  ],
+  "author": "findingkim",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Troubledot/gulp-template/issues"
+  },
+  "homepage": "https://github.com/Troubledot/gulp-template#readme",
+  "devDependencies": {
+    "@types/gulp": "^4.0.8",
+    "@types/gulp-babel": "^6.1.29",
+    "@types/gulp-changed": "^0.0.33",
+    "@types/gulp-concat": "^0.0.32",
+    "@types/gulp-sass": "^4.0.0",
+    "@types/gulp-sourcemaps": "^0.0.34",
+    "@types/sass": "^1.16.0",
+    "browser-sync": "^2.27.3",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-beautify": "^3.0.0",
+    "gulp-changed": "^4.0.3",
+    "gulp-clean": "^0.4.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-file-include": "^2.3.0",
+    "gulp-sass": "^5.0.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "sass": "^1.35.1",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.4"
+  }
+}
