@@ -1,0 +1,23 @@
+.wrap {
+  background-color: #f0f0f0;
+  .header {
+    background-color: green;
+    height: 100px;
+    color: #fff;
+  }
+  img {
+    width: 1600px;
+    height: 100px;
+  }
+  .content {
+    background-color: red;
+    font-size: 50px;
+    padding: 30px;
+  }
+  .footer {
+    background-color: yellow;
+    height: 50px;
+    font-size: 16px;
+    color: #000;
+  }
+}
