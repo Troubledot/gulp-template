@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc --watch",
-    "start:common": "typscript 开启监听",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
