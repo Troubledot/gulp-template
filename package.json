@@ -4,6 +4,8 @@
   "description": "A basic web development template builded by gulp",
   "main": "index.js",
   "scripts": {
+    "start": "tsc --watch",
+    "start:common": "typscript 开启监听",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -11,7 +13,8 @@
     "url": "git+https://github.com/Troubledot/gulp-template.git"
   },
   "keywords": [
-    "gulp"
+    "gulp",
+    "typescript"
   ],
   "author": "findingkim",
   "license": "ISC",
@@ -20,13 +23,17 @@
   },
   "homepage": "https://github.com/Troubledot/gulp-template#readme",
   "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
     "@types/gulp": "^4.0.8",
     "@types/gulp-babel": "^6.1.29",
     "@types/gulp-changed": "^0.0.33",
     "@types/gulp-concat": "^0.0.32",
-    "@types/gulp-sass": "^4.0.0",
+    "@types/gulp-imagemin": "^7.0.2",
+    "@types/gulp-plumber": "^0.0.32",
+    "@types/gulp-postcss": "^8.0.0",
     "@types/gulp-sourcemaps": "^0.0.34",
-    "@types/sass": "^1.16.0",
+    "autoprefixer": "9.8.6",
     "browser-sync": "^2.27.3",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
@@ -34,9 +41,15 @@
     "gulp-changed": "^4.0.3",
     "gulp-clean": "^0.4.0",
     "gulp-concat": "^2.6.1",
+    "gulp-exit": "^0.0.2",
     "gulp-file-include": "^2.3.0",
+    "gulp-imagemin": "^7.1.0",
+    "gulp-notify": "^4.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
     "gulp-sass": "^5.0.0",
     "gulp-sourcemaps": "^3.0.0",
+    "postcss-easysprites": "^1.1.0",
     "sass": "^1.35.1",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.4"

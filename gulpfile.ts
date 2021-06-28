@@ -1,4 +1,4 @@
-import GulpClient, { src, series, dest, watch } from 'gulp'
+import GulpClient, { series, parallel, src, dest, watch } from 'gulp'
 import fs from 'fs'
 import babel from 'gulp-babel'
 import beautify from 'gulp-beautify'
@@ -8,7 +8,14 @@ import changed from 'gulp-changed'
 import browserSync from 'browser-sync'
 import concat from 'gulp-concat'
 import sourcemap from 'gulp-sourcemaps'
-const sass = require('gulp-sass')(require('sass'))
+import imagemin from 'gulp-imagemin'
+import postcss from 'gulp-postcss'
+import autoprefixer from 'autoprefixer'
+import proExit from 'gulp-exit'
+import easySprit from 'postcss-easysprites'
+import plumber from 'gulp-plumber'
+import notify from 'gulp-notify'
+const sass = require('gulp-sass')(require('sass'));
 const bsc = browserSync.create('gulp')
 interface Path {
     html: string
@@ -28,7 +35,7 @@ interface Watch {
 const source: Path = {
     html: 'src/*.html',
     css: 'src/dist/sass/*.scss',
-    js: 'src/dist/js/**/*.js',
+    js: 'src/dist/js/*.js',
     font: 'src/dist/sass/font/*.+(ttf|eot|svg|woff|woff2)',
     jsLib: 'src/dist/js/lib/**/*',
     cssLib: 'src/dist/sass/lib/*.css',
@@ -44,6 +51,7 @@ const destination: Path = {
     image: 'assets/dist/image'
 }
 const ASSETS: string = 'assets' // 生成目录
+
 // html处理
 const htmlFn = () => {
     return src(source.html).pipe(fileInclude({
@@ -77,15 +85,21 @@ const htmlFn = () => {
         .pipe(bsc.reload({ stream: true }))
 }
 // js、css库以及font字体文件复制到生成目录
-const jslibFn = () => src(source.jsLib).pipe(changed(destination.jsLib)).pipe(dest(destination.jsLib))
-const csslibFn = () => src(source.cssLib as string).pipe(changed(destination.css)).pipe(dest(destination.css))
+const jslibFn = () => src(source.jsLib).pipe(changed(destination.jsLib)).pipe(plumber()).pipe(dest(destination.jsLib))
+const csslibFn = () => src(source.cssLib as string).pipe(changed(destination.css)).pipe(plumber()).pipe(dest(destination.css))
 const fontFn = () => src(source.font).pipe(changed(destination.font)).pipe(dest(destination.font))
+const imgFn = () => src(source.image).pipe(changed(destination.image)).pipe(dest(destination.image))
 // scss文件处理
 const cssFn = () => {
     return src(source.css)
         .pipe(changed(destination.css))
+        .pipe(plumber())
         .pipe(sourcemap.init())
         .pipe(sass().on('error', sass.logError))
+        .pipe(postcss([autoprefixer, easySprit({
+            imagePath: './src/dist/image',
+            spritePath: './src/dist/image'
+        })]))
         .pipe(concat('style.css'))
         .pipe(sourcemap.write('./'))
         .pipe(dest(destination.css))
@@ -94,24 +108,54 @@ const cssFn = () => {
 
 // js文件处理
 const jsFn = () => {
-
+    return src(source.js)
+        .pipe(changed(destination.js))
+        .pipe(plumber())
+        .pipe(babel({
+            presets: ['@babel/env']
+        }))
+        .pipe(dest(destination.js))
+        .pipe(bsc.reload({ stream: true }))
 }
+// 图片压缩处理
 
+const imgminFn = () => {
+    return src(source.image)
+        .pipe(imagemin([
+            imagemin.mozjpeg({ quality: 75, progressive: true }),
+            imagemin.optipng({ optimizationLevel: 5 }),
+            imagemin.svgo({
+                plugins: [
+                    { removeViewBox: true },
+                    { cleanupIDs: false }
+                ]
+            })
+        ]))
+        .pipe(dest(destination.image))
+        .pipe(bsc.reload({ stream: true }))
+}
+// 删除生成目录assets
+const cleanFn = () => src(ASSETS, { allowEmpty: true }).pipe(clean()).pipe(notify('生成目录assets删除成功！'))
 
-const cleanFn = () => {
-    return src(ASSETS, { allowEmpty: true }).pipe(clean())
+const exit = (done: GulpClient.TaskFunctionCallback) => {
+    src(ASSETS, { allowEmpty: true }).pipe(notify('Exit！')).pipe(proExit())
+    done()
 }
 
 const watcher: Watch = {
-    html: watch([source.css, source.cssLib as string]),
-    css: watch([source.css, source.cssLib as string]),
-    js: watch([source.css, source.cssLib as string]),
-    image: watch([source.css, source.cssLib as string])
+    html: watch(source.html),
+    css: watch([source.css, source.cssLib as string, source.font]),
+    js: watch([source.js, source.jsLib]),
+    image: watch(source.image)
 }
 
 const serve = () => {
     bsc.init({
-        server: ASSETS,
+        reloadDelay: 1000,
+        server: {
+            baseDir: ASSETS, //本地服务器目录
+            directory: true
+        },
         port: 8080
     })
     watcher.css.on('change', (path) => {
@@ -122,13 +166,29 @@ const serve = () => {
         console.log(`File ${path} was changed`);
         htmlFn()
     })
+    watcher.js.on('change', (path) => {
+        console.log(`File ${path} was changed`);
+        jsFn()
+    })
+    watcher.image.on('change', (path) => {
+        console.log(`File ${path} was changed`);
+        imgFn()
+    })
 }
 
-exports.default = series(htmlFn)
-exports.cssFn = cssFn
-exports.clean = cleanFn
-exports.jslibFn = jslibFn
-exports.csslibFn = csslibFn
-exports.fontFn = fontFn
-exports.serve = serve
+const operate = [htmlFn, cssFn, jsFn, fontFn, csslibFn, jslibFn]
+const build = [imgminFn, ...operate]
+const dev = [imgFn, ...operate]
+
+// gulp默认命令，开发模式（为了提高响应速度，图片没有压缩）
+exports.default = series(parallel(...dev), serve)
+// 打包生成交付结果 assets
+exports.build = series(cleanFn, parallel(...build), exit)
+// 删除生成目录assets
+exports.clean = series(cleanFn, exit)
+// 预览生成目录，用于交付前的打包预览
+exports.preview = series(cleanFn, parallel(...build), serve)
+// 图片压缩
+exports.imgminFn = series(imgminFn, exit)
+
 
