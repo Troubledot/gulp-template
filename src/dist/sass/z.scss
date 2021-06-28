@@ -1,18 +1,29 @@
+$size: 20px;
+$background: #f0f0f0;
+$fontColor: #000;
 .wrap {
-  background-color: #f0f0f0;
+  background-color: $background;
+  font-size: $size;
+  color: $fontColor;
   .header {
     background-color: green;
     height: 100px;
-    color: #fff;
-  }
-  img {
-    width: 1600px;
-    height: 100px;
   }
   .content {
-    background-color: red;
-    font-size: 50px;
-    padding: 30px;
+    padding: 20px;
+    .icon-wrap {
+      display: flex;
+      .icon-item {
+        margin: 10px;
+      }
+      @for $i from 1 through 4 {
+        .icon#{$i} {
+          background-image: url('../image/icon#{$i}.png#elements');
+          width: 64px;
+          height: 64px;
+        }
+      }
+    }
   }
   .footer {
     background-color: yellow;
