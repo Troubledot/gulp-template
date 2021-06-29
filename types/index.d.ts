@@ -1,8 +1,0 @@
-declare module 'gulp-beautify'
-declare module 'gulp-file-include'
-declare module 'gulp-clean'
-declare module 'browser-sync'
-declare module 'autoprefixer'
-declare module 'gulp-exit'
-declare module 'postcss-easysprites'
-declare module 'gulp-notify'
